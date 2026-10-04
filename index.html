@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Spin the Helm</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap"
+      rel="stylesheet" />
+    <style>
+      :root {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #050d1f;
+      }
+      body {
+        font-family: Georgia, serif;
+      }
+      #stage {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+      }
+      svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .lbl {
+        font-family: "Pirata One", Georgia, serif;
+        fill: #ffe2a0;
+        stroke: #2a1608;
+        stroke-width: 3;
+        paint-order: stroke;
+        text-anchor: middle;
+        font-size: 25px;
+      }
+      #wheel,
+      #spinBtn {
+        cursor: pointer;
+      }
+      #spinBtn:hover rect {
+        fill: #5a3018;
+      }
+      #spinBtn.off {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+      #mute {
+        position: fixed;
+        top: max(12px, env(safe-area-inset-top));
+        left: 12px;
+        z-index: 6;
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 3px solid #c58a30;
+        background: #3a1f10;
+        font-size: 22px;
+        cursor: pointer;
+        box-shadow: 0 3px 10px #0008;
+      }
+      #pin {
+        animation: bob 2s ease-in-out infinite;
+      }
+      @keyframes bob {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+      #modal {
+        position: fixed;
+        z-index: 5;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(5, 12, 30, 0.55);
+      }
+      #modal.show {
+        display: flex;
+      }
+      .card {
+        background: linear-gradient(#4a2c17, #26130a);
+        border: 6px solid #c58a30;
+        border-radius: 14px;
+        padding: 3% 5%;
+        text-align: center;
+        color: #ffe2a0;
+        box-shadow: 0 10px 40px #000a;
+        max-width: 60%;
+      }
+      .card h2 {
+        font-family: "Pirata One", serif;
+        font-size: clamp(26px, 4vw, 54px);
+        margin: 0.1em 0;
+      }
+      .card .ic {
+        font-size: clamp(40px, 6vw, 80px);
+      }
+      .card p {
+        margin: 0.2em 0 0.8em;
+        font-size: clamp(13px, 1.6vw, 20px);
+      }
+      .card button {
+        font-family: "Pirata One", serif;
+        font-size: clamp(16px, 2vw, 26px);
+        padding: 0.3em 1em;
+        margin: 0 0.3em;
+        border: 3px solid #c58a30;
+        border-radius: 8px;
+        background: #c58a30;
+        color: #26130a;
+        cursor: pointer;
+      }
+      .card button.alt {
+        background: #4a2c17;
+        color: #ffe2a0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <svg
+        viewBox="0 0 1717 916"
+        preserveAspectRatio="xMidYMid slice"
+        xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#f2c874" />
+            <stop offset=".5" stop-color="#9a6018" />
+            <stop offset="1" stop-color="#e2ae5a" />
+          </linearGradient>
+          <radialGradient
+            id="segg"
+            gradientUnits="userSpaceOnUse"
+            cx="768"
+            cy="540"
+            r="205">
+            <stop offset="0" stop-color="#25120a" />
+            <stop offset=".6" stop-color="#46250f" />
+            <stop offset="1" stop-color="#683818" />
+          </radialGradient>
+          <radialGradient
+            id="segg2"
+            gradientUnits="userSpaceOnUse"
+            cx="768"
+            cy="540"
+            r="205">
+            <stop offset="0" stop-color="#2c160c" />
+            <stop offset=".6" stop-color="#522c15" />
+            <stop offset="1" stop-color="#764220" />
+          </radialGradient>
+          <radialGradient
+            id="segg3"
+            gradientUnits="userSpaceOnUse"
+            cx="768"
+            cy="540"
+            r="205">
+            <stop offset="0" stop-color="#28140b" />
+            <stop offset=".6" stop-color="#4c2a14" />
+            <stop offset="1" stop-color="#6e3d1c" />
+          </radialGradient>
+          <radialGradient id="wlight" cx=".7" cy=".22" r=".95">
+            <stop offset="0" stop-color="#ffa63a" stop-opacity=".38" />
+            <stop offset=".55" stop-color="#ffa63a" stop-opacity="0" />
+            <stop offset="1" stop-color="#000" stop-opacity=".38" />
+          </radialGradient>
+          <radialGradient id="hub" cx=".5" cy=".4">
+            <stop offset="0" stop-color="#52b4cc" />
+            <stop offset=".6" stop-color="#1b4c80" />
+            <stop offset="1" stop-color="#0b1f4a" />
+          </radialGradient>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="6" stdDeviation="6" flood-opacity=".55" />
+          </filter>
+        </defs>
+
+        <!-- BACKGROUND IMAGE -->
+        <image href="background.png" />
+        <!-- WHEEL (foreground): placed on the helm pedestal; tweak translate/scale to fit -->
+        <g
+          id="helm"
+          transform="translate(858 470) scale(1.3) translate(-768 -540)">
+          <g id="wheel" filter="url(#shadow)">
+            <g id="rot"></g>
+            <circle
+              cx="768"
+              cy="540"
+              r="238"
+              fill="url(#wlight)"
+              pointer-events="none" />
+            <circle
+              cx="768"
+              cy="540"
+              r="58"
+              fill="url(#brass)"
+              stroke="#3a2008"
+              stroke-width="5" />
+            <circle
+              cx="768"
+              cy="540"
+              r="46"
+              fill="url(#hub)"
+              stroke="#e8b860"
+              stroke-width="3" />
+            <path
+              d="M768 505 L778 530 L803 540 L778 550 L768 575 L758 550 L733 540 L758 530Z"
+              fill="#fff1c8"
+              opacity=".95" />
+          </g>
+
+          <!-- pointer -->
+          <g id="pin" filter="url(#shadow)">
+            <path
+              d="M768 262 C748 262 738 278 738 292 C738 312 768 330 768 330 C768 330 798 312 798 292 C798 278 788 262 768 262Z"
+              fill="url(#brass)"
+              stroke="#3a2008"
+              stroke-width="4" />
+            <circle cx="768" cy="289" r="9" fill="#2a1608" />
+          </g>
+        </g>
+
+        <!-- spin button -->
+        <g id="spinBtn" filter="url(#shadow)">
+          <rect
+            x="768"
+            y="866"
+            width="180"
+            height="42"
+            rx="10"
+            fill="#3a1f10"
+            stroke="url(#brass)"
+            stroke-width="4" />
+          <text
+            x="858"
+            y="896"
+            font-family="'Pirata One',Georgia,serif"
+            font-size="30"
+            text-anchor="middle"
+            fill="#ffd98a"
+            stroke="#150a04"
+            stroke-width="2"
+            paint-order="stroke">
+            SPIN!
+          </text>
+        </g>
+      </svg>
+
+      <button id="mute" title="Sound on/off" aria-label="Sound on/off">
+        🔊
+      </button>
+      <div id="modal">
+        <div class="card">
+          <div class="ic" id="mIc"></div>
+          <p>The sea has chosen...</p>
+          <h2 id="mName"></h2>
+          <button id="mAgain">Spin again</button
+          ><button class="alt" id="mClose">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ===== CONFIG: the five games (clockwise from the top of the wheel) ===== */
+      const GAMES = [
+        { name: "Crossword", lines: ["Crossword"], icon: "📖" },
+        {
+          name: "Match the Figure",
+          lines: ["Match the", "Figure"],
+          icon: "🧩",
+        },
+        { name: "Cipher", lines: ["Cipher"], icon: "🗝️" },
+        { name: "Unscramble", lines: ["Unscramble"], icon: "📜" },
+        {
+          name: "Spot the Real Image",
+          lines: ["Spot the", "Real Image"],
+          icon: "🔭",
+        },
+      ];
+      const NS = "http://www.w3.org/2000/svg",
+        CX = 768,
+        CY = 540,
+        N = GAMES.length,
+        SEG = 360 / N;
+      const el = (t, a, p) => {
+        const e = document.createElementNS(NS, t);
+        for (const k in a) e.setAttribute(k, a[k]);
+        p && p.appendChild(e);
+        return e;
+      };
+      const pt = (r, deg) => [
+        CX + r * Math.sin((deg * Math.PI) / 180),
+        CY - r * Math.cos((deg * Math.PI) / 180),
+      ];
+      const rot = document.getElementById("rot");
+
+      /* handles */
+      for (let i = 0; i < 10; i++) {
+        const a = i * 36 + 18,
+          [x1, y1] = pt(225, a),
+          [x2, y2] = pt(268, a),
+          [x3, y3] = pt(292, a);
+        el(
+          "line",
+          {
+            x1,
+            y1,
+            x2,
+            y2,
+            stroke: "#4a2610",
+            "stroke-width": 22,
+            "stroke-linecap": "round",
+          },
+          rot,
+        );
+        el(
+          "line",
+          {
+            x1,
+            y1,
+            x2,
+            y2,
+            stroke: "#c88a48",
+            "stroke-width": 5,
+            "stroke-linecap": "round",
+            opacity: 0.6,
+          },
+          rot,
+        );
+        el(
+          "ellipse",
+          {
+            cx: x3,
+            cy: y3,
+            rx: 15,
+            ry: 26,
+            fill: "#5a3016",
+            stroke: "#1e0e05",
+            "stroke-width": 3,
+            transform: `rotate(${a} ${x3} ${y3})`,
+          },
+          rot,
+        );
+        el(
+          "ellipse",
+          {
+            cx: x3 - 3,
+            cy: y3 - 6,
+            rx: 4,
+            ry: 12,
+            fill: "#e0a868",
+            opacity: 0.45,
+            transform: `rotate(${a} ${x3} ${y3})`,
+          },
+          rot,
+        );
+      }
+      /* rim */
+      el(
+        "circle",
+        {
+          cx: CX,
+          cy: CY,
+          r: 232,
+          fill: "#3a2010",
+          stroke: "#150a04",
+          "stroke-width": 6,
+        },
+        rot,
+      );
+      el(
+        "circle",
+        {
+          cx: CX,
+          cy: CY,
+          r: 222,
+          fill: "none",
+          stroke: "url(#brass)",
+          "stroke-width": 14,
+        },
+        rot,
+      );
+      el("circle", { cx: CX, cy: CY, r: 207, fill: "#1e0e06" }, rot);
+      for (let i = 0; i < 20; i++) {
+        const [x, y] = pt(240, i * 18);
+        el("circle", { cx: x, cy: y, r: 4, fill: "#f0c060" }, rot);
+      }
+      /* segments + labels (labels counter-rotate so they stay upright) */
+      const shades = [
+          "url(#segg)",
+          "url(#segg2)",
+          "url(#segg)",
+          "url(#segg2)",
+          "url(#segg3)",
+        ],
+        labels = [];
+      GAMES.forEach((g, i) => {
+        const c = i * SEG,
+          a0 = c - SEG / 2,
+          a1 = c + SEG / 2;
+        const [ox0, oy0] = pt(205, a0),
+          [ox1, oy1] = pt(205, a1),
+          [ix0, iy0] = pt(58, a0),
+          [ix1, iy1] = pt(58, a1);
+        el(
+          "path",
+          {
+            d: `M${ix0} ${iy0}L${ox0} ${oy0}A205 205 0 0 1 ${ox1} ${oy1}L${ix1} ${iy1}A58 58 0 0 0 ${ix0} ${iy0}Z`,
+            fill: shades[i],
+            stroke: "#b8802c",
+            "stroke-width": 3,
+          },
+          rot,
+        );
+        const [ix, iy] = pt(165, c),
+          [tx, ty] = pt(112, c);
+        const gI = el("g", {}, rot);
+        el(
+          "text",
+          { x: ix, y: iy + 14, "font-size": 44, "text-anchor": "middle" },
+          gI,
+        ).textContent = g.icon;
+        const gT = el("g", {}, rot);
+        g.lines.forEach((ln, k) => {
+          el(
+            "text",
+            {
+              x: tx,
+              y: ty + (k - (g.lines.length - 1) / 2) * 26 + 8,
+              class: "lbl",
+            },
+            gT,
+          ).textContent = ln;
+        });
+        labels.push({ el: gI, x: ix, y: iy }, { el: gT, x: tx, y: ty });
+      });
+
+      /* ===== SOUND: original pirate-style effects, synthesised with Web Audio ===== */
+      let AC = null,
+        muted = false,
+        drumTimer = null;
+      const ac = () => {
+        if (!AC) {
+          const C = window.AudioContext || window.webkitAudioContext;
+          if (!C) return null;
+          AC = new C();
+        }
+        if (AC.state === "suspended") AC.resume();
+        return AC;
+      };
+      function tone(f, t0, d, type, v, f2) {
+        if (!AC || muted) return;
+        const o = AC.createOscillator(),
+          g = AC.createGain();
+        o.type = type || "sine";
+        o.frequency.setValueAtTime(f, t0);
+        if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + d);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(v || 0.15, t0 + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+        o.connect(g);
+        g.connect(AC.destination);
+        o.start(t0);
+        o.stop(t0 + d + 0.05);
+      }
+      function noiseBuf(sec) {
+        const b = AC.createBuffer(1, AC.sampleRate * sec, AC.sampleRate),
+          d = b.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+        return b;
+      }
+      function burst(t0, d, v, f1, f2, type) {
+        /* filtered noise burst (creaks, cannon blast) */
+        if (!AC || muted) return;
+        const s = AC.createBufferSource();
+        s.buffer = noiseBuf(d + 0.1);
+        const f = AC.createBiquadFilter();
+        f.type = type || "lowpass";
+        f.frequency.setValueAtTime(f1, t0);
+        f.frequency.exponentialRampToValueAtTime(f2, t0 + d);
+        const g = AC.createGain();
+        g.gain.setValueAtTime(v, t0);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+        s.connect(f);
+        f.connect(g);
+        g.connect(AC.destination);
+        s.start(t0);
+        s.stop(t0 + d + 0.1);
+      }
+      function fiddle(f, t0, d, v) {
+        /* bowed-string voice with vibrato */
+        if (!AC || muted) return;
+        const o = AC.createOscillator(),
+          lf = AC.createBiquadFilter(),
+          g = AC.createGain(),
+          l = AC.createOscillator(),
+          lg = AC.createGain();
+        o.type = "sawtooth";
+        o.frequency.value = f;
+        lf.type = "lowpass";
+        lf.frequency.value = 2400;
+        l.frequency.value = 5.5;
+        lg.gain.value = f * 0.012;
+        l.connect(lg);
+        lg.connect(o.frequency);
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(v, t0 + 0.06);
+        g.gain.setValueAtTime(v, t0 + d * 0.7);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + d);
+        o.connect(lf);
+        lf.connect(g);
+        g.connect(AC.destination);
+        o.start(t0);
+        l.start(t0);
+        o.stop(t0 + d + 0.05);
+        l.stop(t0 + d + 0.05);
+      }
+      function bell(f, t0, d, v) {
+        [1, 2.76, 5.4].forEach((m, i) =>
+          tone(f * m, t0, d / (1 + i * 0.8), "sine", v / (1 + i * 1.4)),
+        );
+      }
+      function tickSound() {
+        /* ship's-wheel ratchet: wooden clack + little creak */
+        if (!AC || muted) return;
+        const t = AC.currentTime;
+        tone(420 + Math.random() * 50, t, 0.07, "triangle", 0.18, 200);
+        burst(t, 0.05, 0.25, 3000, 900, "bandpass");
+        if (Math.random() < 0.18)
+          tone(160 + Math.random() * 40, t, 0.22, "sawtooth", 0.03, 110);
+      }
+      function startDrums() {
+        /* low war-drum in a rolling 6/8 pulse while the wheel turns */
+        if (!AC || muted) return;
+        let step = 0;
+        const hit = () => {
+          if (muted || !AC) return;
+          const t = AC.currentTime,
+            p = [1, 0, 0, 0.8, 0, 0.6][step % 6];
+          if (p) {
+            tone(
+              p === 1 ? 120 : 150,
+              t,
+              0.28,
+              "sine",
+              0.38 * p,
+              p === 1 ? 48 : 70,
+            );
+            burst(t, 0.05, 0.08 * p, 900, 200);
+          }
+          step++;
+        };
+        hit();
+        drumTimer = setInterval(hit, 190);
+      }
+      function stopDrums() {
+        clearInterval(drumTimer);
+        drumTimer = null;
+      }
+      function revealSound() {
+        /* cannon shot, ship's bell, minor-key fiddle fanfare, coins */
+        if (!ac() || muted) return;
+        const t = AC.currentTime;
+        burst(t, 0.9, 0.9, 1400, 60);
+        tone(90, t, 0.7, "sine", 0.5, 28);
+        tone(55, t, 0.9, "triangle", 0.3, 25);
+        bell(660, t + 0.55, 1.6, 0.2);
+        bell(660, t + 1.0, 1.8, 0.2);
+        [
+          [293.66, 0],
+          [349.23, 0.16],
+          [440, 0.32],
+          [587.33, 0.48],
+          [523.25, 0.72],
+          [440, 0.88],
+          [587.33, 1.04],
+        ].forEach(([f, d], i) =>
+          fiddle(f, t + 1.15 + d, i === 6 ? 1.2 : 0.2, 0.1),
+        );
+        fiddle(146.83, t + 1.15, 2, 0.07);
+        for (let i = 0; i < 9; i++)
+          tone(
+            3000 + Math.random() * 2500,
+            t + 1.9 + i * 0.06,
+            0.2,
+            "sine",
+            0.05,
+          );
+      }
+      const muteBtn = document.getElementById("mute");
+      muteBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        muted = !muted;
+        muteBtn.textContent = muted ? "🔇" : "🔊";
+        if (muted) stopDrums();
+        else ac();
+      });
+
+      /* ===== SPIN LOGIC ===== */
+      let angle = 0,
+        spinning = false,
+        winner = -1;
+      const btn = document.getElementById("spinBtn");
+      const draw = () => {
+        rot.setAttribute("transform", `rotate(${angle} ${CX} ${CY})`);
+        labels.forEach((l) =>
+          l.el.setAttribute("transform", `rotate(${-angle} ${l.x} ${l.y})`),
+        );
+      };
+      draw();
+      const ease = (t) => 1 - Math.pow(1 - t, 4);
+
+      function spin() {
+        if (spinning) return;
+        ac();
+        startDrums();
+        spinning = true;
+        btn.classList.add("off");
+        winner = Math.floor(Math.random() * N);
+        const jitter =
+          (Math.random() - 0.5) *
+          SEG *
+          0.7; /* land anywhere inside the slice */
+        const base =
+          (((360 - winner * SEG + jitter) % 360) + 360) %
+          360; /* angle that puts the winner under the pin */
+        const cur = ((angle % 360) + 360) % 360;
+        const delta =
+          ((base - cur + 360) % 360) +
+          360 * (5 + Math.floor(Math.random() * 3));
+        const start = angle,
+          dur = 4800,
+          t0 = performance.now();
+        let lastSlot = Math.floor((angle + SEG / 2) / SEG);
+        (function tick(now) {
+          const t = Math.min(1, (now - t0) / dur);
+          angle = start + delta * ease(t);
+          draw();
+          const slot = Math.floor((angle + SEG / 2) / SEG);
+          if (slot !== lastSlot) {
+            lastSlot = slot;
+            tickSound();
+          } /* click each time a slice passes the pin */
+          if (t < 1) requestAnimationFrame(tick);
+          else {
+            stopDrums();
+            spinning = false;
+            btn.classList.remove("off");
+            setTimeout(() => showResult(winner), 350);
+          }
+        })(t0);
+      }
+      function showResult(i) {
+        revealSound();
+        document.getElementById("mIc").textContent = GAMES[i].icon;
+        document.getElementById("mName").textContent = GAMES[i].name;
+        document.getElementById("modal").classList.add("show");
+      }
+      const modal = document.getElementById("modal"),
+        closeModal = () => modal.classList.remove("show");
+      document.getElementById("mClose").onclick = closeModal;
+      document.getElementById("mAgain").onclick = () => {
+        closeModal();
+        spin();
+      };
+      modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal();
+      });
+      document.getElementById("wheel").addEventListener("click", spin);
+      btn.addEventListener("click", spin);
+      addEventListener("keydown", (e) => {
+        if (e.code === "Space") {
+          e.preventDefault();
+          modal.classList.contains("show") || spin();
+        }
+      });
+    </script>
+  </body>
+</html>
