@@ -612,6 +612,7 @@
       let angle = 0,
         spinning = false,
         winner = -1;
+      previousWinner = -1;
       const btn = document.getElementById("spinBtn");
       const draw = () => {
         rot.setAttribute("transform", `rotate(${angle} ${CX} ${CY})`);
@@ -628,7 +629,12 @@
         startDrums();
         spinning = true;
         btn.classList.add("off");
-        winner = Math.floor(Math.random() * N);
+        // winner = Math.floor(Math.random() * N);
+        do {
+          winner = Math.floor(Math.random() * N);
+        } while (winner === previousWinner);
+
+        previousWinner = winner;
         const jitter =
           (Math.random() - 0.5) *
           SEG *
