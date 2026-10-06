@@ -6,7 +6,6 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Spin the Helm</title>
-    <link rel="icon" type="image/jpeg" href="favicon.jpeg" />
     <link
       href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap"
       rel="stylesheet" />
@@ -279,21 +278,16 @@
     </div>
 
     <script>
-      /* ===== CONFIG: the five games (clockwise from the top of the wheel) ===== */
+      /* ===== CONFIG: the four games (clockwise from the top of the wheel) ===== */
       const GAMES = [
-        { name: "Crossword", lines: ["Crossword"], icon: "📖" },
+        { name: "Unscramble", lines: ["Unscramble"], icon: "📜" },
         {
           name: "Match the Figure",
           lines: ["Match the", "Figure"],
           icon: "🧩",
         },
-        { name: "Cipher", lines: ["Cipher"], icon: "🗝️" },
-        { name: "Unscramble", lines: ["Unscramble"], icon: "📜" },
-        {
-          name: "Spot the Real Image",
-          lines: ["Spot the", "Real Image"],
-          icon: "🔭",
-        },
+        { name: "Emoji Cipher", lines: ["Emoji", "Cipher"], icon: "😎" },
+        { name: "Crossword", lines: ["Crossword"], icon: "📖" },
       ];
       const NS = "http://www.w3.org/2000/svg",
         CX = 768,
@@ -313,8 +307,8 @@
       const rot = document.getElementById("rot");
 
       /* handles */
-      for (let i = 0; i < 10; i++) {
-        const a = i * 36 + 18,
+      for (let i = 0; i < 8; i++) {
+        const a = i * 45 + 22.5,
           [x1, y1] = pt(225, a),
           [x2, y2] = pt(268, a),
           [x3, y3] = pt(292, a);
